@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import AuthButton from "@/components/auth/auth-button"
+import WordSearch from "@/components/search/word-search"
 
 export default function Home() {
   const router = useRouter()
@@ -31,10 +32,8 @@ export default function Home() {
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Welcome to WordMaster</h2>
-          <p className="text-gray-600">
-            Start your English learning journey today!
-          </p>
+          <h2 className="text-xl font-semibold mb-6">Search Words</h2>
+          <WordSearch />
         </div>
       </main>
     </div>
