@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Volume2, BookmarkPlus, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { toast } from "@/components/ui/use-toast"
+import PronunciationAssessment from "@/components/pronunciation/pronunciation-assessment"
 
 interface WordDetails {
   id: string
@@ -204,6 +205,14 @@ export default function WordDetails({ params }: { params: { id: string } }) {
                 ))}
               </div>
             )}
+
+            <div className="mt-6 pt-6 border-t">
+              <h3 className="text-lg font-semibold mb-4">Practice Pronunciation</h3>
+              <PronunciationAssessment 
+                word={word.word} 
+                audioUrl={word.audio?.[0]?.audio_url}
+              />
+            </div>
           </CardContent>
         </Card>
 
