@@ -253,7 +253,7 @@ export default function Wordbook() {
                         onClick={() => toggleFavorite(savedWord.id, savedWord.is_favorited)}
                       >
                         <Star
-                          className={`h-5 w-5 ${
+                          className={\`h-5 w-5 ${
                             savedWord.is_favorited ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'
                           }`}
                         />

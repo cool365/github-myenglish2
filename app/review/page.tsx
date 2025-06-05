@@ -104,7 +104,7 @@ export default function Review() {
           mastery_level: newMasteryLevel,
           next_review_date: nextReviewDate,
           last_reviewed_at: new Date().toISOString(),
-          review_count: supabase.sql`review_count + 1`
+          review_count: supabase.sql\`review_count + 1`
         })
         .eq('id', word.id)
 
