@@ -2,9 +2,10 @@ import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
+import { Search, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
+import { toast } from "@/components/ui/use-toast"
 
 interface WordResult {
   id: string
@@ -12,6 +13,7 @@ interface WordResult {
   definition: string
   part_of_speech: string
   difficulty_level: string
+  phonetic?: string
 }
 
 export default function WordSearch() {
@@ -25,16 +27,48 @@ export default function WordSearch() {
 
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
+      // First, search in our database
+      const { data: existingWords } = await supabase
         .from('words')
-        .select('id, word, definition, part_of_speech, difficulty_level')
+        .select('*')
         .ilike('word', `${query}%`)
         .limit(10)
 
-      if (error) throw error
-      setResults(data)
+      if (existingWords && existingWords.length > 0) {
+        setResults(existingWords)
+        setIsLoading(false)
+        return
+      }
+
+      // If not found, fetch from dictionary API
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/dictionary`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabase.supabaseKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ word: query.trim() }),
+      })
+
+      const data = await response.json()
+      
+      if (data.error) {
+        toast({
+          title: "Word not found",
+          description: "Please try another word",
+          variant: "destructive",
+        })
+        return
+      }
+
+      setResults([data])
     } catch (error) {
       console.error('Error searching words:', error)
+      toast({
+        title: "Error",
+        description: "Failed to search for word",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
@@ -58,7 +92,7 @@ export default function WordSearch() {
       <div className="relative">
         <Input
           type="text"
-          placeholder="Search for a word..."
+          placeholder="Type any English word..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -70,7 +104,11 @@ export default function WordSearch() {
           disabled={isLoading}
           className="absolute right-1 top-1"
         >
-          <Search className="h-4 w-4" />
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Search className="h-4 w-4" />
+          )}
         </Button>
       </div>
 
@@ -80,7 +118,12 @@ export default function WordSearch() {
             <Link href={`/word/${word.id}`} key={word.id}>
               <div className="p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">{word.word}</h3>
+                  <div>
+                    <h3 className="text-lg font-semibold">{word.word}</h3>
+                    {word.phonetic && (
+                      <p className="text-gray-500 text-sm">{word.phonetic}</p>
+                    )}
+                  </div>
                   <Badge className={getDifficultyColor(word.difficulty_level)}>
                     {word.difficulty_level}
                   </Badge>
