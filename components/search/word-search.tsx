@@ -27,7 +27,6 @@ export default function WordSearch() {
 
     setIsLoading(true)
     try {
-      // First, search in our database
       const { data: existingWords } = await supabase
         .from('words')
         .select('*')
@@ -40,7 +39,6 @@ export default function WordSearch() {
         return
       }
 
-      // If not found, fetch from dictionary API
       const response = await fetch(`${supabase.supabaseUrl}/functions/v1/dictionary`, {
         method: 'POST',
         headers: {
@@ -96,13 +94,13 @@ export default function WordSearch() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-          className="pr-10"
+          className="h-12 sm:h-14 pl-4 pr-12 text-base sm:text-lg rounded-2xl border-2 border-teal-200 focus:border-teal-400 shadow-sm transition-all duration-200"
         />
         <Button
           size="icon"
           onClick={handleSearch}
           disabled={isLoading}
-          className="absolute right-1 top-1"
+          className="absolute right-2 top-2 sm:right-3 sm:top-3 h-8 w-8 sm:h-8 sm:w-8 rounded-xl bg-teal-500 hover:bg-teal-600 transform transition-all duration-200 hover:scale-105 active:scale-95"
         >
           {isLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -113,10 +111,10 @@ export default function WordSearch() {
       </div>
 
       {results.length > 0 && (
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 space-y-3">
           {results.map((word) => (
             <Link href={`/word/${word.id}`} key={word.id}>
-              <div className="p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+              <div className="p-4 bg-white rounded-2xl shadow-md hover:shadow-lg transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold">{word.word}</h3>
@@ -124,12 +122,12 @@ export default function WordSearch() {
                       <p className="text-gray-500 text-sm">{word.phonetic}</p>
                     )}
                   </div>
-                  <Badge className={getDifficultyColor(word.difficulty_level)}>
+                  <Badge className={`${getDifficultyColor(word.difficulty_level)} transform transition-all duration-200 hover:scale-105`}>
                     {word.difficulty_level}
                   </Badge>
                 </div>
                 <p className="text-gray-600 text-sm mt-1">{word.part_of_speech}</p>
-                <p className="text-gray-700 mt-2">{word.definition}</p>
+                <p className="text-gray-700 mt-2 line-clamp-2">{word.definition}</p>
               </div>
             </Link>
           ))}
